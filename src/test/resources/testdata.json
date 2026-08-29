@@ -1,0 +1,18 @@
+{
+  "validCredentialsLogin": {
+    "username": "Admin",
+    "password": "admin123"
+  },
+  "invalidCredentialsLogin": {
+    "username": "WrongData",
+    "password": "WrongPassword"
+  },
+  "employeeSearch": {
+    "existingEmployee": "mego syria",
+    "nonExistingEmployee": "EmployeeDoesNotExist123"
+  },
+  "employeeCreation": {
+    "firstName": "John",
+    "lastName": "Tester"
+  }
+}

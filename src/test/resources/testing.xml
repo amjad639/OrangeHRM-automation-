@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="OrangeHRM Suite" parallel="tests" thread-count="3">
+
+    <listeners>
+        <listener class-name="utils.TestListener"/>
+        <listener class-name="utils.RetryTransformer"/>
+    </listeners>
+
+    <test name="LoginTestClass">
+        <classes>
+            <class name="tests.LoginTests"/>
+        </classes>
+    </test>
+
+    <test name="PIMTestClass">
+        <classes>
+            <class name="tests.PIMTests"/>
+        </classes>
+    </test>
+
+    <test name="AdminAndDashboardTestClass">
+        <classes>
+            <class name="tests.AdminTests"/>
+            <class name="tests.DashboardTests"/>
+            <class name="tests.UITest"/>
+        </classes>
+    </test>
+
+</suite>
