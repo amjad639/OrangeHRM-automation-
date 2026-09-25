@@ -1,16 +1,18 @@
 package tests;
 
 import base.BaseTest;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.DashboardPage;
 import pages.LoginPage;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class DashboardTests extends BaseTest {
 
@@ -29,16 +31,26 @@ public class DashboardTests extends BaseTest {
     }
 
     @Test
-    public void verifyFooterBrandingLink() {
-        String footerText = dashboardPage.getFooterText();
-        Assert.assertTrue(
-                footerText.contains("OrangeHRM, Inc"),
-                "Footer should contain 'OrangeHRM, Inc', but was: " + footerText
+    public void verifyCoreDashboardWidgets() {
+        List<String> expectedWidgets = Arrays.asList(
+                "Time at Work", "My Actions", "Quick Launch", "Employees on Leave Today"
         );
-        String newTabUrl = dashboardPage.clickFooterLinkAndGetNewTabUrl();
+
+        for (String widget : expectedWidgets) {
+            Assert.assertTrue(
+                    dashboardPage.isWidgetPresent(widget),
+                    "Expected dashboard widget to be displayed: " + widget
+            );
+        }
+    }
+
+    @Test
+    public void navigateViaQuickLaunch() {
+        dashboardPage.clickQuickLaunchItem("Assign Leave");
+
         Assert.assertTrue(
-                newTabUrl.contains("orangehrm.com"),
-                "New tab URL should contain 'orangehrm.com', but was: " + newTabUrl
+                getDriver().getCurrentUrl().contains("/leave/"),
+                "Expected Quick Launch 'Assign Leave' to navigate into the Leave module"
         );
     }
 }

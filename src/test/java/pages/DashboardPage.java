@@ -26,8 +26,7 @@ public class DashboardPage {
     By footerCopyrightText = By.cssSelector("p.orangehrm-copyright a");
     By footerLink = By.cssSelector("p.orangehrm-copyright a[href='http://www.orangehrm.com']");
     By sidebarMenuItems = By.cssSelector(".oxd-main-menu-item");
-
-
+    By widgetHeaders = By.cssSelector(".orangehrm-dashboard-widget-name");
 
     public boolean isDashboardDisplayed() {
         return wait.until(
@@ -40,6 +39,7 @@ public class DashboardPage {
                 ExpectedConditions.visibilityOfElementLocated(dashboardHeader)
         ).getText();
     }
+
     public String getFooterText() {
         Allure.step("Scroll to footer and read text");
         var footer = wait.until(ExpectedConditions.presenceOfElementLocated(footerCopyrightText));
@@ -72,6 +72,7 @@ public class DashboardPage {
 
         return newTabUrl;
     }
+
     public List<String> getSidebarMenuTexts() {
         Allure.step("Read sidebar menu items");
 
@@ -86,5 +87,29 @@ public class DashboardPage {
     public boolean isMenuItemPresent(String menuName) {
         return getSidebarMenuTexts().stream()
                 .anyMatch(text -> text.equalsIgnoreCase(menuName));
+    }
+
+    public List<String> getWidgetTitles() {
+        Allure.step("Read dashboard widget titles");
+        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(widgetHeaders));
+        return driver.findElements(widgetHeaders)
+                .stream()
+                .map(el -> el.getText().trim())
+                .filter(text -> !text.isEmpty())
+                .collect(Collectors.toList());
+    }
+
+    public boolean isWidgetPresent(String widgetName) {
+        return getWidgetTitles().stream()
+                .anyMatch(text -> text.equalsIgnoreCase(widgetName));
+    }
+
+    public void clickQuickLaunchItem(String quickLaunchName) {
+        Allure.step("Click Quick Launch item: " + quickLaunchName);
+        By item = By.xpath(
+                "//p[normalize-space()='" + quickLaunchName + "']" +
+                        "/ancestor::div[contains(@class,'orangehrm-quick-launch-card')]"
+        );
+        wait.until(ExpectedConditions.elementToBeClickable(item)).click();
     }
 }

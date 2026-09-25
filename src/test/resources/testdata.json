@@ -14,5 +14,49 @@
   "employeeCreation": {
     "firstName": "John",
     "lastName": "Tester"
+  },
+  "existingUser": {
+    "username": "Admin"
+  },
+  "newUser": {
+    "userRole": "ESS",
+    "employeeName": "Paul akhil Dev-Ops",
+    "username": "esstestuser01",
+    "password": "Test@1234"
+  },
+  "applyLeave": {
+    "leaveType": "CAN - Annual Leave",
+    "fromDate": "2026-10-05",
+    "toDate": "2026-10-06"
+  },
+  "invalidLeaveRange": {
+    "leaveType": "CAN - Annual Leave",
+    "fromDate": "2026-10-10",
+    "toDate": "2026-10-05"
+  },
+  "myInfoUpdate": {
+    "nationality": "American",
+    "maritalStatus": "Single"
+  },
+  "emergencyContact": {
+    "name": "Jane Doe",
+    "relationship": "Sister",
+    "phone": "0123456789"
+  },
+  "languageSkill": {
+    "language": "English",
+    "competency": "Writing"
+  },
+  "timesheetEntry": {
+    "duration": "8:00"
+  },
+  "newVacancy": {
+    "vacancyName": "QA Automation Engineer",
+    "jobTitle": "QA Engineer"
+  },
+  "newCandidate": {
+    "firstName": "Sara",
+    "lastName": "Candidate",
+    "vacancyName": "QA Automation Engineer"
   }
 }

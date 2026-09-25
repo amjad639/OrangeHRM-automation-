@@ -158,4 +158,85 @@ public class PIMTests extends BaseTest {
                 "Newly created employee '" + fullName + "' should appear in search results"
         );
     }
+    @Test(dataProvider = "employeeSearchData")
+    public void editExistingEmployee(String employeeName) {
+        pimPage.clickPIM();
+        pimPage.clickEmployeeList();
+        pimPage.enterEmployeeName(employeeName);
+        pimPage.clickSearch();
+        pimPage.clickFirstEditButton();
+
+        pimPage.updateLastName("UpdatedLastName");
+        pimPage.clickSave();
+
+        Assert.assertTrue(
+                pimPage.isUpdateSuccessToastDisplayed(),
+                "Expected success toast after updating employee"
+        );
+    }
+
+    @Test(dataProvider = "employeeCreationData")
+    public void deleteEmployee(String firstName, String lastName) {
+        String fullName = firstName + " " + lastName;
+
+        // create an employee first so deletion doesn't touch seed data
+        pimPage.clickPIM();
+        pimPage.clickAddEmployee();
+        pimPage.enterFirstName(firstName);
+        pimPage.enterLastName(lastName);
+        pimPage.clickSave();
+
+        new WebDriverWait(getDriver(), Duration.ofSeconds(10))
+                .until(ExpectedConditions.urlContains("/pim/viewPersonalDetails"));
+
+        pimPage.clickPIM();
+        pimPage.clickEmployeeList();
+        pimPage.enterEmployeeName(fullName);
+        pimPage.clickSearch();
+
+        pimPage.clickFirstDeleteButton();
+        pimPage.confirmDelete();
+
+        Assert.assertTrue(
+                pimPage.isDeleteSuccessToastDisplayed(),
+                "Expected success toast after deleting employee"
+        );
+
+        pimPage.clickSearch();
+        Assert.assertTrue(
+                pimPage.isNoRecordsMessageDisplayed(),
+                "Deleted employee should no longer appear in search results"
+        );
+    }
+
+    @Test
+    public void filterByEmploymentStatus() {
+        pimPage.clickPIM();
+        pimPage.clickEmployeeList();
+        pimPage.selectEmploymentStatus("Full-Time Permanent");
+        pimPage.clickSearch();
+
+        Assert.assertTrue(
+                pimPage.areAllRowsMatchingStatus("Full-Time Permanent"),
+                "All displayed rows should have Employment Status = Full-Time Permanent"
+        );
+    }
+
+    @Test(dataProvider = "employeeCreationData")
+    public void addEmployeeWithoutPhoto(String firstName, String lastName) {
+        pimPage.clickPIM();
+        pimPage.clickAddEmployee();
+        pimPage.enterFirstName(firstName);
+        pimPage.enterLastName(lastName);
+        // no photo upload step  verifying it's accepted as optional
+        pimPage.clickSave();
+
+        new WebDriverWait(getDriver(), Duration.ofSeconds(10))
+                .until(ExpectedConditions.urlContains("/pim/viewPersonalDetails"));
+
+        Assert.assertTrue(
+                pimPage.isPersonalDetailsPageDisplayed(),
+                "Employee should be created successfully without a photo"
+        );
+    }
 }

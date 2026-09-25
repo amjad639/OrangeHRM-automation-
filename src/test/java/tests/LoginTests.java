@@ -68,4 +68,65 @@ public class LoginTests extends BaseTest {
         loginPage.clickLoginButton();
         Assert.assertEquals(loginPage.getRequiredMessagesCount(), 2);
     }
+    @Test
+    public void VerifyForgotPasswordFlow() {
+        LoginPage loginPage = new LoginPage(getDriver());
+
+        loginPage.clickForgotPasswordLink();
+        loginPage.enterResetUsername("Admin");
+        loginPage.clickResetPasswordButton();
+
+        Assert.assertTrue(
+                loginPage.isSuccessMessageDisplayed(),
+                "Reset password success message should be displayed"
+        );
+    }
+    @Test(dataProvider = "validLoginData")
+    public void VerifyLogout(String username, String password) {
+        LoginPage loginPage = new LoginPage(getDriver());
+
+        loginPage.ValidLogin(username, password);
+        loginPage.logout();
+
+        Assert.assertTrue(
+                loginPage.isLoginFormDisplayed(),
+                "Login form should be displayed after logout"
+        );
+    }
+
+    @Test
+    public void VerifyDashboardAccessWithoutLogin() {
+        getDriver().get("https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index");
+
+        Assert.assertTrue(
+                getDriver().getCurrentUrl().contains("/auth/login"),
+                "Unauthenticated user should be redirected to login page"
+        );
+    }
+
+    @Test
+    public void VerifySocialMediaLinks() {
+        LoginPage loginPage = new LoginPage(getDriver());
+
+        Assert.assertEquals(
+                loginPage.getLinkedinHref(),
+                "https://www.linkedin.com/company/orangehrm/mycompany/",
+                "LinkedIn link mismatch"
+        );
+        Assert.assertEquals(
+                loginPage.getFacebookHref(),
+                "https://www.facebook.com/OrangeHRM/",
+                "Facebook link mismatch"
+        );
+        Assert.assertEquals(
+                loginPage.getTwitterHref(),
+                "https://twitter.com/orangehrm?lang=en",
+                "Twitter link mismatch"
+        );
+        Assert.assertEquals(
+                loginPage.getYoutubeHref(),
+                "https://www.youtube.com/c/OrangeHRMInc",
+                "YouTube link mismatch"
+        );
+    }
 }

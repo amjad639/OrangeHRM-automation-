@@ -22,29 +22,27 @@ public class PIMPage {
     // Locators
     By pimMenu = By.xpath("//span[text()='PIM']");
     By employeeList = By.xpath("//a[text()='Employee List']");
-
-    By employeeNameInput =
-            By.xpath("//label[text()='Employee Name']/following::input[1]");
-
-    By searchButton =
-            By.xpath("//button[normalize-space()='Search']");
-
-    By employeeTable =
-            By.cssSelector(".oxd-table-body");
-
-    By noRecordsFound =
-            By.xpath("//div[contains(@class,'oxd-toast')]//*[normalize-space()='No Records Found']");
+    By employeeNameInput = By.xpath("//label[text()='Employee Name']/following::input[1]");
+    By searchButton = By.xpath("//button[normalize-space()='Search']");
+    By employeeTable = By.cssSelector(".oxd-table-body");
+    By noRecordsFound = By.xpath("//div[contains(@class,'oxd-toast')]//*[normalize-space()='No Records Found']");
     By addEmployee = By.xpath("//button[normalize-space()='Add']");
     By firstNameInput = By.name("firstName");
     By lastNameInput = By.name("lastName");
     By saveButton = By.xpath("//button[normalize-space()='Save']");
-    // PIMPage.java
-    By firstNameRequiredError = By.xpath(
-            "//input[@name='firstName']/ancestor::div[contains(@class,'oxd-input-group')][1]" +
-                    "//span[contains(@class,'oxd-input-field-error-message')]"
-    );
+    By firstNameRequiredError = By.xpath("//input[@name='firstName']/ancestor::div[contains(@class,'oxd-input-group')][1]" + "//span[contains(@class,'oxd-input-field-error-message')]");
     By formLoader = By.cssSelector(".oxd-form-loader");
     By personalDetailsHeader = By.xpath("//h6[text()='Personal Details']");
+    By employmentStatusDropdown = By.xpath("//label[text()='Employment Status']/following::div[contains(@class,'oxd-select-text')][1]");
+    By subUnitDropdown = By.xpath("//label[text()='Sub Unit']/following::div[contains(@class,'oxd-select-text')][1]");
+
+    By firstEditButton = By.xpath("(//button[.//i[contains(@class,'bi-pencil-fill')]])[1]");
+    By firstDeleteButton = By.xpath("(//button[.//i[contains(@class,'bi-trash')]])[1]");
+    By confirmDeleteButton = By.xpath("//button[normalize-space()='Yes, Delete']");
+    By deleteSuccessToast = By.xpath("//p[text()='Successfully Deleted']");
+    By updateSuccessToast = By.xpath("//p[text()='Successfully Updated']");
+    By employeeIdField = By.cssSelector(".oxd-input[type='text']");
+    By tableRows = By.cssSelector(".oxd-table-card");
 
 
 
@@ -143,7 +141,6 @@ public class PIMPage {
     public void clickSave() {
         Allure.step("Click Save");
 
-        // Wait for the loading overlay to disappear first
         wait.until(ExpectedConditions.invisibilityOfElementLocated(formLoader));
 
         wait.until(
@@ -167,5 +164,61 @@ public class PIMPage {
                 ExpectedConditions.visibilityOfElementLocated(personalDetailsHeader)
         ).isDisplayed();
     }
+    public void clickFirstEditButton() {
+        Allure.step("Click Edit on first employee row");
+        wait.until(ExpectedConditions.elementToBeClickable(firstEditButton)).click();
+    }
+
+    public void updateLastName(String newLastName) {
+        Allure.step("Update last name to: " + newLastName);
+        var lastNameField = wait.until(ExpectedConditions.visibilityOfElementLocated(lastNameInput));
+        lastNameField.clear();
+        lastNameField.sendKeys(newLastName);
+    }
+
+    public boolean isUpdateSuccessToastDisplayed() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(updateSuccessToast)).isDisplayed();
+    }
+
+    public void clickFirstDeleteButton() {
+        Allure.step("Click Delete on first employee row");
+        wait.until(ExpectedConditions.elementToBeClickable(firstDeleteButton)).click();
+    }
+
+    public void confirmDelete() {
+        Allure.step("Confirm delete");
+        wait.until(ExpectedConditions.elementToBeClickable(confirmDeleteButton)).click();
+    }
+
+    public boolean isDeleteSuccessToastDisplayed() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(deleteSuccessToast)).isDisplayed();
+    }
+
+    public int getEmployeeRowCount() {
+        return driver.findElements(tableRows).size();
+    }
+
+    public void selectEmploymentStatus(String status) {
+        Allure.step("Select Employment Status: " + status);
+        wait.until(ExpectedConditions.elementToBeClickable(employmentStatusDropdown)).click();
+        By option = By.xpath(String.format("//div[@role='listbox']//span[text()='%s']", status));
+        wait.until(ExpectedConditions.elementToBeClickable(option)).click();
+    }
+
+    public void selectSubUnit(String subUnit) {
+        Allure.step("Select Sub Unit: " + subUnit);
+        wait.until(ExpectedConditions.elementToBeClickable(subUnitDropdown)).click();
+        By option = By.xpath(String.format("//div[@role='listbox']//span[text()='%s']", subUnit));
+        wait.until(ExpectedConditions.elementToBeClickable(option)).click();
+    }
+
+    public boolean areAllRowsMatchingStatus(String expectedStatus) {
+        var statusCells = driver.findElements(
+                By.xpath("//div[contains(@class,'oxd-table-row')]//div[position()=5]")
+        );
+        return statusCells.stream().allMatch(cell -> cell.getText().equals(expectedStatus));
+    }
+
+
 
 }
