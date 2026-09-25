@@ -1,70 +1,116 @@
-# OrangeHRM Selenium Test Automation Framework
+# OrangeHRM Test Automation Framework (with BDD)
 
-A test automation framework for the [OrangeHRM Open Source Demo](https://opensource-demo.orangehrmlive.com/) built with **Selenium WebDriver**, **TestNG**, and the **Page Object Model (POM)**. The framework supports data-driven testing, parallel execution, retry-on-failure, structured logging, and Allure reporting.
+A Selenium WebDriver + TestNG automation framework built on the **Page Object Model (POM)**, testing the [OrangeHRM Demo](https://opensource-demo.orangehrmlive.com/) application end-to-end — now extended with a **Cucumber BDD layer** on top of the same Page Objects.
 
-## Tech Stack
+> This project was built as a graduation project for the **Route** training program.
 
-- **Java 17**
-- **Selenium WebDriver 4.44.0**
-- **TestNG 7.10.2**
-- **Jackson Databind** — JSON test data parsing
-- **Allure 2.29.1** — test reporting
-- **Log4j2** — structured logging
-- **Maven** — build and dependency management
+## ✨ Features
 
-## Project Structure
+- **Page Object Model** — clean separation between locators/page logic and test logic
+- **TestNG** — test execution, data providers, and parallel-ready structure
+- **Cucumber (BDD)** — feature files written in plain Gherkin (Given/When/Then), reusing the existing Page Object methods underneath
+- **Allure Reports** — rich, step-by-step HTML reports for both TestNG and Cucumber runs
+- **Log4j2** — structured logging for test execution and retries
+- **Retry Analyzer** — automatically retries flaky/failed tests (`RetryAnalyzer`, `RetryTransformer`)
+- **Data-Driven Testing** — test data externalized in `testData.json`
+- **Config-driven runs** — browser and base URL configurable via `config.properties`
+
+## 🗂️ Project Structure
 
 ```
-src/test/java
-├── base/
-│   ├── BaseTest.java        # Test lifecycle (setup/teardown), ThreadLocal WebDriver
-│   └── DriverManager.java
-├── pages/
-│   ├── LoginPage.java
-│   ├── PIMPage.java
-│   ├── AdminPage.java
-│   └── DashboardPage.java
-├── tests/
-│   ├── LoginTests.java
-│   ├── PIMTests.java
-│   ├── AdminTests.java
-│   ├── DashboardTests.java
-│   └── UITest.java
-└── utils/
-    ├── ConfigReader.java     # Reads config.properties
-    ├── RetryAnalyzer.java    # Retries failed tests (max 2 retries)
-    ├── RetryTransformer.java # Applies RetryAnalyzer to all @Test methods
-    └── TestListener.java     # Logs test start/pass/fail/skip events
+src/test/java/
+ ├── base/
+ │    └── BaseTest.java              # Driver lifecycle for plain TestNG tests
+ ├── context/
+ │    └── TestContext.java           # Shared WebDriver instance for Cucumber steps
+ ├── hooks/
+ │    └── Hooks.java                 # @Before/@After driver setup & teardown (Cucumber)
+ ├── pages/
+ │    ├── LoginPage.java
+ │    ├── AdminPage.java
+ │    ├── PIMPage.java
+ │    └── DashboardPage.java
+ ├── runners/
+ │    └── TestRunner.java            # Cucumber-TestNG runner
+ ├── stepdefinitions/
+ │    ├── LoginSteps.java
+ │    ├── AdminSteps.java
+ │    ├── PIMSteps.java
+ │    └── DashboardSteps.java
+ ├── tests/
+ │    ├── LoginTests.java            # Original TestNG tests (kept alongside BDD)
+ │    ├── AdminTests.java
+ │    ├── PIMTests.java
+ │    └── DashboardTests.java
+ └── utils/
+      ├── ConfigReader.java          # Reads config.properties
+      ├── DataDriver.java            # Reads testData.json
+      ├── RetryAnalyzer.java         # Retry logic for failed tests
+      └── RetryTransformer.java      # Applies RetryAnalyzer globally
 
-src/test/resources
-├── config.properties         # Environment config (base URL, browser, wait time)
-├── testdata.json             # Test data (credentials, employee data)
-└── testing.xml               # TestNG suite configuration
+src/test/resources/
+ ├── config.properties
+ ├── testData.json
+ └── features/
+      ├── login.feature
+      ├── admin.feature
+      ├── pim.feature
+      └── dashboard.feature
 ```
 
-## Features
+## 🧪 Test Coverage
 
-- **Page Object Model (POM)** — locators and page interactions are encapsulated per page
-- **Explicit waits** — no `Thread.sleep()`; all waits use `WebDriverWait`
-- **Data-driven testing** — test data is stored in `testdata.json` and consumed via TestNG `@DataProvider`
-- **Parallel execution** — test classes run in parallel (`parallel="tests"`, thread-count configurable) using a `ThreadLocal<WebDriver>` so each thread gets its own independent browser session
-- **Retry mechanism** — failed tests are automatically retried up to 2 times via a custom `IRetryAnalyzer`, reducing false failures from flaky runs
-- **Centralized configuration** — environment settings (base URL, browser, explicit wait) are read from `config.properties` instead of being hardcoded
-- **Logging** — Log4j2 logs each test step (`INFO`) and failure (`ERROR`) to both console and a log file
-- **Allure reporting** — generates an HTML report with test results and step-by-step execution detail
+| Module     | Scenarios covered |
+|------------|--------------------|
+| **Login**    | Valid/invalid login, empty credentials, forgot password flow, logout, unauthenticated access redirect, social media links |
+| **Admin**    | Add User (with role/employee/username/password), field visibility, duplicate username validation, search by username |
+| **PIM**      | Employee search (existing/non-existing), add employee (with/without required fields, with/without photo), edit, delete, filter by employment status |
+| **Dashboard**| Core widgets visibility, sidebar navigation, footer links, Quick Launch navigation |
 
-## Test Coverage
+Each module above is covered both by the original TestNG test classes and by an equivalent Cucumber feature file, so scenarios can be read and run in plain English by non-technical stakeholders as well.
 
-| Area | Test Cases |
-|---|---|
-| Login | Valid login, invalid login, empty credentials validation |
-| PIM | Search existing/non-existing employee, open Add Employee page, empty required field validation, full add-employee end-to-end flow |
-| Admin | Add User form field verification |
-| Dashboard | Sidebar menu items, footer branding link |
+## ⚙️ Prerequisites
 
-## Configuration
+- Java JDK 11+
+- Maven
+- Chrome browser (ChromeDriver managed via Selenium Manager)
 
-Edit `src/test/resources/config.properties` to change environment settings:
+## ▶️ Running the Tests
+
+**All TestNG tests:**
+```bash
+mvn clean test
+```
+
+**A specific TestNG class:**
+```bash
+mvn test -Dtest=LoginTests
+```
+
+**All BDD (Cucumber) scenarios:**
+```bash
+mvn test -Dtest=TestRunner
+```
+
+**A specific feature file:**
+```bash
+mvn test -Dcucumber.features="src/test/resources/features/login.feature"
+```
+
+**By tag** (add a tag like `@login` above a Feature/Scenario first):
+```bash
+mvn test -Dcucumber.filter.tags="@login"
+```
+
+## 📊 Generating Allure Reports
+
+```bash
+allure serve target/allure-results
+```
+
+## 🔧 Configuration
+
+Edit `src/test/resources/config.properties`:
 
 ```properties
 base.url=https://opensource-demo.orangehrmlive.com/web/index.php/
@@ -72,46 +118,18 @@ browser=chrome
 explicit.wait=10
 ```
 
-Test data (login credentials, employee names) lives in `src/test/resources/testdata.json`.
+Edit `src/test/resources/testData.json` to change test data (credentials, employee names, roles, etc.).
 
-## Running the Tests
+## 🧩 Challenges & Solutions
 
-**Run the full suite via Maven:**
+- **Cucumber/TestNG/Allure integration** — hooked up the `AbstractTestNGCucumberTests` runner with the Allure Cucumber plugin; resolved dependency-version mismatches and classpath issues that initially caused runtime plugin-loading failures.
+- **Dynamic and inconsistent locators** — several OrangeHRM elements shifted structure between pages or loaded asynchronously, making static selectors unreliable. Solved with relative XPath strategies and explicit `WebDriverWait`/`ExpectedConditions` instead of assuming elements were immediately present.
+- **Shared WebDriver across Cucumber steps** — introduced a `TestContext` + Cucumber PicoContainer dependency injection so all step definition classes share the same driver instance per scenario.
 
-```bash
-mvn test
-```
+## 🙏 Acknowledgements
 
-This uses the TestNG suite defined in `src/test/resources/testing.xml`, running test classes in parallel and applying the retry analyzer to any failures.
+Built as a graduation project for the **Route** training program. Special thanks to instructor **Mohamed Mumtaz** for the guidance and support throughout the training.
 
-**Run from an IDE:** right-click `testing.xml` and run it as a TestNG Suite, or run individual test classes directly.
+## 📄 License
 
-## Generating the Allure Report
-
-After running the tests:
-
-```bash
-mvn test
-allure generate allure-results --clean -o allure-report
-```
-
-**View the report locally:**
-
-```bash
-allure open allure-report
-```
-
-> Note: `allure-results/` (raw test output) is excluded from version control via `.gitignore`. The generated `allure-report/` (static HTML report) is committed to the repository so it can be viewed without regenerating it.
-
-## Logs
-
-Test execution logs (step-level `INFO`, failures at `ERROR`) are written to the `logs/` directory at the project root when running locally.
-
-## Known Limitations
-
-The OrangeHRM Open Source Demo is a **public, shared environment** used by many people simultaneously. As a result:
-
-- Login attempts may occasionally be rate-limited by the server during heavy or parallel test runs, which can cause intermittent failures unrelated to the test code itself.
-- Data created or searched for (e.g., employee records) may be affected by other users interacting with the same demo instance at the same time.
-
-The retry mechanism is configured specifically to reduce the impact of this kind of environment-related flakiness.
+This project is for educational/portfolio purposes, built against the public OrangeHRM demo instance.
