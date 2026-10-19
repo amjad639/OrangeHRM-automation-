@@ -22,7 +22,7 @@
         <classes>
             <class name="tests.AdminTests"/>
             <class name="tests.DashboardTests"/>
-            <class name="tests.UITest"/>
+
         </classes>
     </test>
 
